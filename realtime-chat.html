@@ -46,8 +46,52 @@
 
             });
 
+            document.querySelector('#new').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const text = event.target.elements.text.value;
+                connection.send(JSON.stringify({
+                    type: 'items',
+                    collection: 'messages',
+                    action: 'create',
+                    data: { text }
+                }));
+                document.querySelector('#text').value = '';
+            })
+
             function receiveMessage(message) {
-                console.log(message)
+                const data = JSON.parse(message.data);
+
+                if(data.type == 'auth' && data.status == 'ok') {
+                    connection.send(JSON.stringify({
+                        type: 'subscribe',
+                        collection: 'messages',
+                        query: {
+                            fields: ['*', 'user_created.first_name'],
+                            sort: 'date_created'
+                        }
+                    }));
+                }
+
+                if(data.type == 'subscription' && data.event == 'init')
+                {
+                    console.log('subscription started');
+                    for(const messages of data.data) {
+                        addMessageToList(message)
+                    }
+                }
+
+                if(data.type == 'subscription' && data.event == 'create') 
+                {
+                    addMessageToList(data.data[0]);
+                }
+
+            }
+
+            function addMessageToList(message) {
+                const li = document.createElement('li');
+                li.setAttribute('id', message.id);
+                li.textContent = `${message.user_created.first_name}: ${message.text}`
+                document.querySelector('ol').appendChild(li)
             }
 
             // 3. Subscribe to messages
