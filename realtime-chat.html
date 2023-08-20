@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <form id="login">
+            <label for="email">Email</label>
+            <input type="email" id="email">
+            <label for="Password">Password</label>
+            <input type="password" id="password">
+            <input type="submit">
+        </form>
+
+        <ol></ol>
+
+        <form id="new">
+            <label for="message">Message</label>
+            <input type="text" id="text">
+            <input type="submit">
+        </form>
+
+        <script>
+            const url = 'wss://gcs-directus-demo-5awywjxlxq-uc.a.run.app/websocket'
+            let connection;
+
+            document.querySelector('#login').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const email = event.target.elements.email.value;
+                const password = event.target.elements.password.value;
+
+                connection = new WebSocket(url);
+            // 1. Establish Connection
+            // 2. Authenticate
+                connection.addEventListener('open', function() {
+                    console.log({ event: 'onopen' });
+                    connection.send(JSON.stringify({
+                        type: 'auth',
+                        email,
+                        password
+                    }))
+
+                });
+
+                connection.addEventListener('message', function(message) {
+                    receiveMessage(message);
+                })
+
+            });
+
+            function receiveMessage(message) {
+                console.log(message)
+            }
+
+            // 3. Subscribe to messages
+            // 4. Add New Message functionality
+            // 5. Display New Messages and Historical Messages
+
+
+        </script>
+    </body>
+</html>
